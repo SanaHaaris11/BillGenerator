@@ -198,4 +198,4 @@ def view_bill(bill_id):
 
 # This block runs the Flask development server when you execute app.py directly
 if __name__ == '__main__':
-    app.run(debug=True) # debug=True provides helpful error messages during development
+    app.run(host='0.0.0.0', port=10000)
