@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}View Customers{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">All Customers</h1>
+    {% if customers %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.address }}</td>
+                <td>{{ customer.phone }}</td>
+                <td>{{ customer.email }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No customers found. <a href="{{ url_for('add_customer') }}">Add a new customer</a>.</p>
+    {% endif %}
+{% endblock %}

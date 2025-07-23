@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Generate New Bill{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Generate New Bill</h1>
+    <form method="POST">
+        <div class="form-group">
+            <label for="customer_id">Select Customer</label>
+            <select class="form-control" id="customer_id" name="customer_id" required>
+                <option value="">-- Select Customer --</option>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.email }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <hr>
+        <h3>Bill Items</h3>
+        <div id="bill-items-container">
+            <div class="form-row mb-2 bill-item-row">
+                <div class="col">
+                    <input type="text" class="form-control item-name" name="item_name[]" placeholder="Item Name" required>
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control quantity" name="quantity[]" placeholder="Quantity" min="1" required>
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control unit-price" name="unit_price[]" placeholder="Unit Price" step="0.01" min="0" required>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger remove-item">Remove</button>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary mt-3" id="add-item">Add Another Item</button>
+
+        <button type="submit" class="btn btn-success mt-4">Generate Bill</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addItemButton = document.getElementById('add-item');
+            const billItemsContainer = document.getElementById('bill-items-container');
+
+            // Function to attach remove listener to a button
+            function attachRemoveListener(button) {
+                button.addEventListener('click', function() {
+                    button.closest('.bill-item-row').remove();
+                    checkRemoveButtons(); // Update button states after removal
+                });
+            }
+
+            // Function to manage disable/enable state of "Remove" buttons
+            function checkRemoveButtons() {
+                const allRemoveButtons = billItemsContainer.querySelectorAll('.remove-item');
+                // Disable if there's only one item row left, otherwise enable all
+                if (allRemoveButtons.length <= 1) {
+                    allRemoveButtons.forEach(button => button.disabled = true);
+                } else {
+                    allRemoveButtons.forEach(button => button.disabled = false);
+                }
+            }
+
+            // Event listener for "Add Another Item" button
+            addItemButton.addEventListener('click', function() {
+                const existingRow = billItemsContainer.querySelector('.bill-item-row');
+                if (!existingRow) {
+                    console.error("No existing bill-item-row found to clone.");
+                    return;
+                }
+                const newItemRow = existingRow.cloneNode(true);
+
+                // Clear input values in the cloned row
+                newItemRow.querySelectorAll('input').forEach(input => input.value = '');
+
+                // Re-attach event listener to the new "Remove" button in the cloned row
+                const newRemoveButton = newItemRow.querySelector('.remove-item');
+                if (newRemoveButton) {
+                    attachRemoveListener(newRemoveButton);
+                }
+
+                billItemsContainer.appendChild(newItemRow);
+                checkRemoveButtons(); // Update button states
+            });
+
+            // Attach listeners to any existing "Remove" buttons when the page loads
+            billItemsContainer.querySelectorAll('.remove-item').forEach(attachRemoveListener);
+
+            // Initial check to disable remove button if only one row is present on load
+            checkRemoveButtons();
+        });
+    </script>
+{% endblock %}
